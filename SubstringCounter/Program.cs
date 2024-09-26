@@ -1,33 +1,45 @@
 ﻿namespace SubstringCounter
 {
-    public class Program
+    internal class Program
     {
-        public static void Main(string[] args)
+        internal static void Main(string[] args)
         {
             if (args.Length == 0)
             {
                 Console.WriteLine("Usage: SubstringCounter <filename>");
                 return;
             }
-            Run(args[0]);
+            var fileContents = ReadFileContents(args[0]);
+            PrintFileNameOccurrences(args[0], fileContents);
         }
 
-        private static void Run(string path)
+        private static string ReadFileContents(string path)
         {
-            var f = File.Open(path, FileMode.Open);
-            int pos = path.IndexOf('.');
-            string name = path.Substring(0, pos);
-            System.IO.StreamReader file = new System.IO.StreamReader(f);
-            string line;
-            int counter = 0;
-            while (true)
-            {
-                line = file.ReadLine();
-                if (line == null) break;
-                if (line.Contains(name))
-                    counter++;
-            }
-            Console.WriteLine("Found " + counter);
+            using StreamReader reader = new(path);
+            return reader.ReadToEnd();
         }
+
+        private static void PrintFileNameOccurrences(string path, string fileContents)
+        {
+            var fileName = path.Split('.')[0];
+            var count = CountSubstringOccurrences(fileContents, fileName);
+            Console.WriteLine("Found " + count);
+        }
+
+        private static int CountSubstringOccurrences(string contents, string substring)
+        {
+            if (string.IsNullOrEmpty(substring))
+                return 0;
+
+            int count = 0;
+            int index = 0;
+            while ((index = contents.IndexOf(substring, index)) != -1)
+            {
+                count++;
+                index += substring.Length;
+            }
+            return count;
+        }
+
     }
 }
