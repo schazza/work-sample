@@ -1,20 +1,27 @@
-
-
-
+using System.Security.AccessControl;
+using Xunit;
 
 namespace SubstringCounter.Tests
 {
-    public class Tests
+    public class Tests : IDisposable
     {
-        private readonly Program _consoleApp;
         private readonly StringWriter _output;
         private string? _argument;
+        private string? _filePath;
 
         public Tests()
         {
-            _consoleApp = new Program();
             _output = new StringWriter();
             Console.SetOut(_output);
+        }
+
+        public void Dispose()
+        {
+            GC.SuppressFinalize(this);
+            if (_filePath != null)
+            {
+                File.Delete(_filePath);
+            }
         }
 
         [Fact]
@@ -22,7 +29,58 @@ namespace SubstringCounter.Tests
         {
             GivenNoArgument();
             WhenRunningProgram();
-            ThenOutputShouldBe("Usage: SubstringCounter <filename>");
+            ThenOutputShouldBe("Usage: SubstringCounter <file path>");
+        }
+
+        [Fact]
+        public void ProgramShouldExitWithMessageIfEmptyArgGiven()
+        {
+            GivenArgument("");
+            WhenRunningProgram();
+            ThenOutputShouldBe("Usage: SubstringCounter <file path>");
+        }
+
+        [Fact]
+        public void ProgramShouldExitWithMessageIfNullArgGiven()
+        {
+            GivenArgument(null);
+            WhenRunningProgram();
+            ThenOutputShouldBe("Usage: SubstringCounter <file path>");
+        }
+
+        [Fact]
+        public void ProgramShouldExitWithMessageIfFilePathIncludesInvalidChar()
+        {
+            GivenArgument("invalid|char.txt");
+            WhenRunningProgram();
+            ThenOutputShouldBe("File path includes invalid character");
+        }
+
+        [Fact]
+        public void ProgramShouldExitWithMessageIfFileInaccessible()
+        {
+            GivenArgument("inaccessible.txt");
+            GivenFileWithContents("inaccessible.txt", "file");
+            GivenFileIsInaccessible("inaccessible.txt");
+            WhenRunningProgram();
+            ThenOutputShouldBe("File not accessible for reading");
+        }
+
+        [Fact]
+        public void ProgramShouldExitWithMessageIfFileNotFound()
+        {
+            GivenArgument("nonexistantfile.txt");
+            GivenFileWithContents("file.txt", "file");
+            WhenRunningProgram();
+            ThenOutputShouldBe("File not found or file format invalid");
+        }
+
+        [Fact]
+        public void ProgramShouldExitWithMessageIfFileFormatInvalid()
+        {
+            GivenArgument("invalidfileformat");
+            WhenRunningProgram();
+            ThenOutputShouldBe("File not found or file format invalid");
         }
 
         [Fact]
@@ -55,16 +113,24 @@ namespace SubstringCounter.Tests
             ThenOutputShouldBe("Found 2");
         }
 
-        private static void GivenFileWithContents(string fileName, string contents)
+        private void GivenFileWithContents(string filePath, string contents)
         {
-            File.WriteAllText(fileName, contents);
+            File.WriteAllText(filePath, contents);
+            _filePath = filePath;
         }
 
-        private void GivenNoArgument()
+        private void GivenFileIsInaccessible(string filePath)
+        {
+            FileSecurity fileSecurity = new FileSecurity();
+            fileSecurity.AddAccessRule(new FileSystemAccessRule("Everyone", FileSystemRights.Read, AccessControlType.Deny));
+            new FileInfo(filePath).SetAccessControl(fileSecurity);
+        }
+
+        private static void GivenNoArgument()
         {
         }
 
-        private void GivenArgument(string argument)
+        private void GivenArgument(string? argument)
         {
             _argument = argument;
         }
