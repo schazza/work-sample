@@ -1,17 +1,22 @@
 ﻿namespace SubstringCounter
 {
-    class Program
+    public class Program
     {
-        public static string[] args;
-        Program(string[] args)
+        public static void Main(string[] args)
         {
-            Program.args = args;
+            if (args.Length == 0)
+            {
+                Console.WriteLine("Usage: SubstringCounter <filename>");
+                return;
+            }
+            Run(args[0]);
         }
-        private void Run()
+
+        private static void Run(string path)
         {
-            var f = File.Open(args[0], FileMode.Open);
-            int pos = args[0].IndexOf('.');
-            string name = args[0].Substring(0, pos);
+            var f = File.Open(path, FileMode.Open);
+            int pos = path.IndexOf('.');
+            string name = path.Substring(0, pos);
             System.IO.StreamReader file = new System.IO.StreamReader(f);
             string line;
             int counter = 0;
@@ -20,14 +25,9 @@
                 line = file.ReadLine();
                 if (line == null) break;
                 if (line.Contains(name))
-                    counter++;  
+                    counter++;
             }
-            Console.WriteLine("found " + counter);
-        }
-        static void Main(string[] args)
-        {
-            Program program = new Program(args);
-            program.Run();
+            Console.WriteLine("Found " + counter);
         }
     }
 }
