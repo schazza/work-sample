@@ -4,24 +4,24 @@
     {
         internal static void Main(string[] args)
         {
-            if (args.Length == 0)
+            if (!FilePathValidator.Validate(args, out string? filePath, out string? errorMessage))
             {
-                Console.WriteLine("Usage: SubstringCounter <filename>");
+                Console.WriteLine(errorMessage);
                 return;
             }
-            var fileContents = ReadFileContents(args[0]);
+            var fileContents = ReadFileContents(filePath);
             PrintFileNameOccurrences(args[0], fileContents);
         }
 
-        private static string ReadFileContents(string path)
+        private static string ReadFileContents(string filePath)
         {
-            using StreamReader reader = new(path);
+            using StreamReader reader = new(filePath);
             return reader.ReadToEnd();
         }
 
-        private static void PrintFileNameOccurrences(string path, string fileContents)
+        private static void PrintFileNameOccurrences(string filePath, string fileContents)
         {
-            var fileName = path.Split('.')[0];
+            var fileName = filePath.Split('.')[0];
             var count = CountSubstringOccurrences(fileContents, fileName);
             Console.WriteLine("Found " + count);
         }
