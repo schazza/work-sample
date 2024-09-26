@@ -18,20 +18,41 @@ namespace SubstringCounter.Tests
         }
 
         [Fact]
-        public void ConsoleAppShouldExitWithMessageIfNoArgsGiven()
+        public void ProgramShouldExitWithMessageIfNoArgsGiven()
         {
             GivenNoArgument();
-            WhenRunningConsoleApp();
+            WhenRunningProgram();
             ThenOutputShouldBe("Usage: SubstringCounter <filename>");
         }
 
         [Fact]
-        public void ConsoleAppShouldReturnCountIfFileGivenAsArg()
+        public void ProgramShouldReturnCountIfFileGivenAsArg()
         {
             GivenFileWithContents("file.txt", "file");
             GivenArgument("file.txt");
-            WhenRunningConsoleApp();
+            WhenRunningProgram();
             ThenOutputShouldBe("Found 1");
+        }
+
+        [Theory]
+        [InlineData("file", 1)]
+        [InlineData("file\nfile", 2)]
+        [InlineData("filefilefile", 3)]
+        public void ProgramShouldReturnCorrectCountOfSubstringInFile(string fileContents, int count)
+        {
+            GivenFileWithContents("file.txt", fileContents);
+            GivenArgument("file.txt");
+            WhenRunningProgram();
+            ThenOutputShouldBe($"Found {count}");
+        }
+
+        [Fact]
+        public void ProgramShouldNotCountOverlappingSubstrings()
+        {
+            GivenFileWithContents("fifi.txt", "fifififi");
+            GivenArgument("fifi.txt");
+            WhenRunningProgram();
+            ThenOutputShouldBe("Found 2");
         }
 
         private static void GivenFileWithContents(string fileName, string contents)
@@ -48,7 +69,7 @@ namespace SubstringCounter.Tests
             _argument = argument;
         }
 
-        private void WhenRunningConsoleApp()
+        private void WhenRunningProgram()
         {
             var arguments = _argument == null ? [] : new[] { _argument };
             Program.Main(arguments);
