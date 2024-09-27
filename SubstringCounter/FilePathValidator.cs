@@ -18,11 +18,6 @@ namespace SubstringCounter
                 errorMessage = "Given file has no name";
                 return false;
             }
-            if (FilePathIncludesInvalidChars(filePath))
-            {
-                errorMessage = "File path includes invalid character";
-                return false;
-            }
             if (!FileExists(filePath))
             {
                 errorMessage = "File not found or file format invalid";
@@ -40,7 +35,6 @@ namespace SubstringCounter
         private static bool NoValidArgumentGiven(string[] args) => args.Length == 0 || string.IsNullOrWhiteSpace(args[0]);
         private static bool MultipleArgumentsGiven(string[] args) => args.Length > 1;
         private static bool FileNameIsEmpty(string filePath) => string.IsNullOrWhiteSpace(Path.GetFileNameWithoutExtension(filePath));
-        private static bool FilePathIncludesInvalidChars(string filePath) => filePath.IndexOfAny(Path.GetInvalidPathChars()) != -1;
         private static bool FileExists(string filePath) => File.Exists(filePath);
         private static bool IsFileAccessible(string filePath)
         {

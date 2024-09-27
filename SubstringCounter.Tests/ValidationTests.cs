@@ -50,7 +50,7 @@ namespace SubstringCounter.Tests
         {
             GivenArgument("invalid|char.txt");
             WhenRunningProgram();
-            ThenOutputShouldBe("File path includes invalid character");
+            ThenOutputShouldBe("File not found or file format invalid");
         }
 
         [Fact]
