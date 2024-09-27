@@ -1,4 +1,6 @@
-﻿namespace SubstringCounter
+﻿using System.Text.RegularExpressions;
+
+namespace SubstringCounter
 {
     internal class Program
     {
@@ -9,14 +11,8 @@
                 Console.WriteLine(errorMessage);
                 return;
             }
-            var fileContents = ReadFileContents(filePath);
-            PrintFileNameOccurrences(args[0], fileContents);
-        }
-
-        private static string ReadFileContents(string filePath)
-        {
-            using StreamReader reader = new(filePath);
-            return reader.ReadToEnd();
+            var fileContents = File.ReadAllText(filePath);
+            PrintFileNameOccurrences(filePath, fileContents);
         }
 
         private static void PrintFileNameOccurrences(string filePath, string fileContents)
@@ -31,14 +27,8 @@
             if (string.IsNullOrEmpty(substring))
                 return 0;
 
-            int count = 0;
-            int index = 0;
-            while ((index = contents.IndexOf(substring, index)) != -1)
-            {
-                count++;
-                index += substring.Length;
-            }
-            return count;
+            var regex = new Regex(Regex.Escape(substring), RegexOptions.IgnoreCase);
+            return regex.Matches(contents).Count;
         }
 
     }
