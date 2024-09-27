@@ -3,31 +3,20 @@ using Xunit;
 
 namespace SubstringCounter.Tests
 {
-    public class Tests : IDisposable
+    public class ValidationTests : TestBase
     {
-        private readonly StringWriter _output;
-        private string? _argument;
-        private string? _filePath;
-
-        public Tests()
-        {
-            _output = new StringWriter();
-            Console.SetOut(_output);
-        }
-
-        public void Dispose()
-        {
-            GC.SuppressFinalize(this);
-            if (_filePath != null)
-            {
-                File.Delete(_filePath);
-            }
-        }
-
         [Fact]
         public void ProgramShouldExitWithMessageIfNoArgsGiven()
         {
             GivenNoArgument();
+            WhenRunningProgram();
+            ThenOutputShouldBe("Usage: SubstringCounter <file path>");
+        }
+
+        [Fact]
+        public void ProgramShouldExitWithMessageIfMultipleArgsGiven()
+        {
+            GivenArguments(["file.txt", "file2.txt"]);
             WhenRunningProgram();
             ThenOutputShouldBe("Usage: SubstringCounter <file path>");
         }
@@ -49,6 +38,14 @@ namespace SubstringCounter.Tests
         }
 
         [Fact]
+        public void ProgramShouldExitWithMessageIfFileNameEmpty()
+        {
+            GivenArgument(".gitignore");
+            WhenRunningProgram();
+            ThenOutputShouldBe("Given file has no name");
+        }
+
+        [Fact]
         public void ProgramShouldExitWithMessageIfFilePathIncludesInvalidChar()
         {
             GivenArgument("invalid|char.txt");
@@ -59,6 +56,7 @@ namespace SubstringCounter.Tests
         [Fact]
         public void ProgramShouldExitWithMessageIfFileInaccessible()
         {
+            // Testing logic for making file inaccessible only available on Windows
             if (IsRunningInCI())
             {
                 return;
@@ -79,15 +77,6 @@ namespace SubstringCounter.Tests
         public void ProgramShouldExitWithMessageIfFileNotFound()
         {
             GivenArgument("nonexistantfile.txt");
-            GivenFileWithContents("file.txt", "file");
-            WhenRunningProgram();
-            ThenOutputShouldBe("File not found or file format invalid");
-        }
-
-        [Fact]
-        public void ProgramShouldExitWithMessageIfFileFormatInvalid()
-        {
-            GivenArgument("invalidfileformat");
             WhenRunningProgram();
             ThenOutputShouldBe("File not found or file format invalid");
         }
@@ -101,31 +90,14 @@ namespace SubstringCounter.Tests
             ThenOutputShouldBe("Found 1");
         }
 
-        [Theory]
-        [InlineData("file", 1)]
-        [InlineData("file\nfile", 2)]
-        [InlineData("filefilefile", 3)]
-        public void ProgramShouldReturnCorrectCountOfSubstringInFile(string fileContents, int count)
-        {
-            GivenFileWithContents("file.txt", fileContents);
-            GivenArgument("file.txt");
-            WhenRunningProgram();
-            ThenOutputShouldBe($"Found {count}");
-        }
-
         [Fact]
-        public void ProgramShouldNotCountOverlappingSubstrings()
+        public void ProgramShouldReturnCountIfFileWithPathGivenAsArg()
         {
-            GivenFileWithContents("fifi.txt", "fifififi");
-            GivenArgument("fifi.txt");
+            GivenFolder("subfolder.tests");
+            GivenFileWithContents("subfolder.tests/file.txt", "file");
+            GivenArgument("subfolder.tests/file.txt");
             WhenRunningProgram();
-            ThenOutputShouldBe("Found 2");
-        }
-
-        private void GivenFileWithContents(string filePath, string contents)
-        {
-            File.WriteAllText(filePath, contents);
-            _filePath = filePath;
+            ThenOutputShouldBe("Found 1");
         }
 
         private static void GivenFileIsInaccessible(string filePath)
@@ -133,27 +105,6 @@ namespace SubstringCounter.Tests
             FileSecurity fileSecurity = new FileSecurity();
             fileSecurity.AddAccessRule(new FileSystemAccessRule("Everyone", FileSystemRights.Read, AccessControlType.Deny));
             new FileInfo(filePath).SetAccessControl(fileSecurity);
-        }
-
-        private static void GivenNoArgument()
-        {
-        }
-
-        private void GivenArgument(string? argument)
-        {
-            _argument = argument;
-        }
-
-        private void WhenRunningProgram()
-        {
-            var arguments = _argument == null ? [] : new[] { _argument };
-            Program.Main(arguments);
-        }
-
-        private void ThenOutputShouldBe(string outputMessage)
-        {
-            var consoleOutput = _output.ToString().Trim();
-            Assert.Equal(outputMessage, consoleOutput);
         }
     }
 }
