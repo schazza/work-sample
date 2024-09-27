@@ -14,8 +14,8 @@ namespace SubstringCounter
             }
 
             filePath = args[0];
-            if (FileNameIsEmpty(filePath)){
-                errorMessage = "Given file has no name";
+            if (IsFileNameEmpty(filePath)){
+                errorMessage = "Given file must have name";
                 return false;
             }
             if (!FileExists(filePath))
@@ -34,7 +34,7 @@ namespace SubstringCounter
 
         private static bool NoValidArgumentGiven(string[] args) => args.Length == 0 || string.IsNullOrWhiteSpace(args[0]);
         private static bool MultipleArgumentsGiven(string[] args) => args.Length > 1;
-        private static bool FileNameIsEmpty(string filePath) => string.IsNullOrWhiteSpace(Path.GetFileNameWithoutExtension(filePath));
+        private static bool IsFileNameEmpty(string filePath) => string.IsNullOrWhiteSpace(Path.GetFileNameWithoutExtension(filePath));
         private static bool FileExists(string filePath) => File.Exists(filePath);
         private static bool IsFileAccessible(string filePath)
         {
@@ -43,7 +43,7 @@ namespace SubstringCounter
                 using FileStream fs = File.Open(filePath, FileMode.Open, FileAccess.Read);
                 return true;
             }
-            catch (UnauthorizedAccessException)
+            catch (Exception)
             {
                 return false;
             }

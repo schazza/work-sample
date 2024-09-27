@@ -12,11 +12,6 @@ namespace SubstringCounter
                 return;
             }
             var fileContents = File.ReadAllText(filePath);
-            PrintFileNameOccurrences(filePath, fileContents);
-        }
-
-        private static void PrintFileNameOccurrences(string filePath, string fileContents)
-        {
             var fileName = Path.GetFileNameWithoutExtension(filePath);
             var count = CountSubstringOccurrences(fileContents, fileName);
             Console.WriteLine("Found " + count);

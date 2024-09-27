@@ -57,14 +57,14 @@ namespace SubstringCounter.Tests
 
         internal void WhenRunningProgram()
         {
-            var arguments = _arguments == null ? [] : _arguments;
+            var arguments = _arguments ?? [];
             Program.Main(arguments);
         }
 
-        internal void ThenOutputShouldBe(string outputMessage)
+        internal void ThenOutputShouldBe(string expectedOutputMessage)
         {
             var consoleOutput = _output.ToString().Trim();
-            Assert.Equal(outputMessage, consoleOutput);
+            Assert.Equal(expectedOutputMessage, consoleOutput);
         }
     }
 }

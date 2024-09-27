@@ -42,7 +42,7 @@ namespace SubstringCounter.Tests
         {
             GivenArgument(".gitignore");
             WhenRunningProgram();
-            ThenOutputShouldBe("Given file has no name");
+            ThenOutputShouldBe("Given file must have name");
         }
 
         [Fact]
