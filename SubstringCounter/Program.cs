@@ -21,7 +21,7 @@
 
         private static void PrintFileNameOccurrences(string filePath, string fileContents)
         {
-            var fileName = filePath.Split('.')[0];
+            var fileName = Path.GetFileNameWithoutExtension(filePath);
             var count = CountSubstringOccurrences(fileContents, fileName);
             Console.WriteLine("Found " + count);
         }

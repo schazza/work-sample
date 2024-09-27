@@ -6,7 +6,7 @@ namespace SubstringCounter
     {
         internal static bool Validate(string[] args, [NotNullWhen(true)] out string? filePath, [NotNullWhen(false)] out string? errorMessage)
         {
-            if (!IsArgumentGiven(args))
+            if (NoValidArgumentGiven(args) || MultipleArgumentsGiven(args) )
             {
                 errorMessage = "Usage: SubstringCounter <file path>";
                 filePath = null;
@@ -14,6 +14,10 @@ namespace SubstringCounter
             }
 
             filePath = args[0];
+            if (FileNameIsEmpty(filePath)){
+                errorMessage = "Given file has no name";
+                return false;
+            }
             if (FilePathIncludesInvalidChars(filePath))
             {
                 errorMessage = "File path includes invalid character";
@@ -33,7 +37,9 @@ namespace SubstringCounter
             return true;
         }
 
-        private static bool IsArgumentGiven(string[] args) => args.Length > 0 && !string.IsNullOrWhiteSpace(args[0]);
+        private static bool NoValidArgumentGiven(string[] args) => args.Length == 0 || string.IsNullOrWhiteSpace(args[0]);
+        private static bool MultipleArgumentsGiven(string[] args) => args.Length > 1;
+        private static bool FileNameIsEmpty(string filePath) => string.IsNullOrWhiteSpace(Path.GetFileNameWithoutExtension(filePath));
         private static bool FilePathIncludesInvalidChars(string filePath) => filePath.IndexOfAny(Path.GetInvalidPathChars()) != -1;
         private static bool FileExists(string filePath) => File.Exists(filePath);
         private static bool IsFileAccessible(string filePath)
