@@ -2,6 +2,7 @@
 
 namespace SubstringCounter.Tests
 {
+    [Collection("Non-Parallel Collection")]
     public abstract class TestBase : IDisposable
     {
         internal readonly StringWriter _output;
